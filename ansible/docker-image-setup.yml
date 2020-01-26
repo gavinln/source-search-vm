@@ -1,0 +1,4 @@
+---
+- name: pull sourcegraph server
+  docker_image:
+    name: sourcegraph/server:3.12.3
