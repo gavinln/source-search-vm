@@ -21,6 +21,57 @@ This project provides a [Ubuntu (18.04)][20] [Vagrant][30] Virtual Machine
 
 [50]: https://about.sourcegraph.com/
 
+## Setup semantic docker container
+
+[Semantic][60] is used to parse, analyze and compare source code across many languages.
+
+[60]: https://github.com/github/semantic
+
+### Authenticate to Github packages - DOES NOT WORK
+
+Go to Github, Settings, "Developer settings", "Personal access tokens"
+
+1. Create a [personal access token][100] to Github
+
+[100]: https://help.github.com/en/github/managing-packages-with-github-packages/configuring-docker-for-use-with-github-packages
+
+2. Login to Github Docker repo
+
+```
+cd /vagrant
+source do_not_checkin/github-personal-access-token.sh
+docker login -u gavinln -p $GITHUB_PAT docker.pkg.github.com
+docker pull docker.pkg.github.com/github/semantic/semantic:latest
+docker logout docker.pkg.github.com
+```
+
+### Install ghcup pre-requisites
+
+```
+sudo apt install -y build-essential 
+sudo apt install -y libgmp-dev
+sudo apt install -y libffi-dev
+sudo apt install -y libncurses-dev
+sudo apt install -y libtinfo5
+```
+
+### Install ghcup
+
+```
+curl https://gitlab.haskell.org/haskell/ghcup/raw/master/bootstrap-haskell -sSf | sh
+```
+
+### Setup semantic
+
+```
+git clone https://github.com/github/semantic.git
+cd semantic
+script/bootstrap
+cabal v2-build
+cabal v2-test
+cabal v2-run semantic -- --help
+```
+
 ## OpenGrok
 
 1. Start the virtual machine
@@ -135,9 +186,16 @@ cp ./dist/lib/source.war ./apache-tomcat-9.0.30/webapps/
 
 ### Install universal-ctags
 
-1. Install tools to build universal-ctags. Automatically run in `ctags-setup.yml`
+1. Install tools to build universal-ctags. Automatically run in
+   `ctags-setup.yml`
 
-2. Build and install ctags
+2. Install universal-ctags
+
+```
+sudo snap install universal-ctags
+```
+
+2. Alternatively, on WSL build and install ctags as snap does not work
 
 ```
 cd ~
@@ -157,7 +215,7 @@ sudo make install
 java \
     -Djava.util.logging.config.file=/mnt/c/ws/opengrok/etc/logging.properties \
     -jar ./dist/lib/opengrok.jar \
-    -c /usr/local/bin/ctags \
+    -c /snap/bin/ctags \
     -s ./src \
     -d ./data -H -P -S -G \
     -W ./etc/configuration.xml \
@@ -175,7 +233,19 @@ curl http://localhost:8080/source/api/v1/projects
 2. Search for definition in project
 
 ```
-curl http://localhost:8080/source/api/v1/search?projects=dbutil&def=get_engine_data
+curl http://localhost:8080/source/api/v1/search?projects=OpenGrok&def=Suggester
+```
+
+3. Suggest configuration
+
+```
+curl http://localhost:8080/source/api/v1/suggest/config
+```
+
+4. Suggest examples
+
+```
+curl http://localhost:8080/source/api/v1/suggest?projects=OpenGrok&field=defs&defs=Suggester
 ```
 
 ## Sourcegraph

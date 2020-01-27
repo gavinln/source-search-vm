@@ -7,3 +7,4 @@
 .vagrant
 ansible/playbook.retry
 ansible/roles/
+do_not_checkin/

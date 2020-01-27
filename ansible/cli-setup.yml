@@ -26,6 +26,9 @@
 - name: Install vifm
   apt: name=vifm state=present
 
+- name: Install wuzz
+  apt: name=wuzz state=present
+
 - name: Install tmuxp
   apt: name=tmuxp state=present
 
